@@ -4,6 +4,7 @@ function App() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [file, setFile] = useState(null);
 
   const bottomRef = useRef(null);
 
@@ -54,6 +55,18 @@ function App() {
     setLoading(false);
   };
 
+  const uploadFile = async () => {
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    await fetch(`${import.meta.env.VITE_API_URL}/upload`, {
+      method: "POST",
+      body: formData,
+    });
+  };
+
   return (
     <div style={{ padding: 20, maxWidth: 600, margin: "auto" }}>
       <h2>AI Chat</h2>
@@ -88,6 +101,11 @@ function App() {
       <button onClick={sendMessage} disabled={loading}>
         Send
       </button>
+
+      <div style={{ marginTop: 20 }}>
+        <input type="file" onChange={e => setFile(e.target.files[0])} />
+        <button onClick={uploadFile}>Upload</button>
+      </div>
     </div>
   );
 }
