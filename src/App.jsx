@@ -61,10 +61,22 @@ function App() {
     const formData = new FormData();
     formData.append("file", file);
 
-    await fetch(`${import.meta.env.VITE_API_URL}/upload`, {
+    setLoading(true);
+
+    const response=await fetch(`${import.meta.env.VITE_API_URL}/upload`, {
       method: "POST",
       body: formData,
     });
+    const data=await response.json();
+
+    setMessages(prev=>[
+      ...prev,
+      {role:"user",text:`Uploaded file:${file.name}`},
+      {role:"ai",text:data.reply}
+    ]);
+
+    setFile(null);
+    setLoading(false);
   };
 
   return (
@@ -104,7 +116,7 @@ function App() {
 
       <div style={{ marginTop: 20 }}>
         <input type="file" onChange={e => setFile(e.target.files[0])} />
-        <button onClick={uploadFile}>Upload</button>
+        <button onClick={uploadFile} disabled={loading}>Upload</button>
       </div>
     </div>
   );
