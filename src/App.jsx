@@ -8,9 +8,11 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState(null);
 
-  const [agent, setAgent]=useState("chat");
+  const [agent, setAgent] = useState("chat");
 
   const bottomRef = useRef(null);
+  const fileInputRef = useRef(null);
+
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -30,7 +32,7 @@ function App() {
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: updatedMessages, agent:agent }),
+        body: JSON.stringify({ messages: updatedMessages, agent: agent }),
       }
     );
 
@@ -86,6 +88,7 @@ function App() {
     ]);
 
     setFile(null);
+    fileInputRef.current.value = "";
     setLoading(false);
   };
 
@@ -116,10 +119,39 @@ function App() {
     <div style={{ padding: 20, maxWidth: 700, margin: "auto" }}>
       <h2 style={{ textAlign: "center" }}>AI Chat Agent</h2>
 
-      <div style={{display:"flex",gap:10,marginBottom:10}}>
-        <button onClick={()=>setAgent("chat")}>Chat</button>
-        <button onClick={()=>setAgent("study")}>Study</button>
-        <button onClick={()=>setAgent("resume")}>Resume</button>
+      <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
+        {/* CHAT */}
+        <button
+          style={{
+            background: agent === "chat" ? "#2563eb" : "#e5e7eb",
+            color: agent === "chat" ? "white" : "black",
+          }}
+          onClick={() => setAgent("chat")}
+        >
+          Chat
+        </button>
+
+        {/* STUDY */}
+        <button
+          style={{
+            background: agent === "study" ? "#2563eb" : "#e5e7eb",
+            color: agent === "study" ? "white" : "black",
+          }}
+          onClick={() => setAgent("study")}
+        >
+          Study
+        </button>
+
+        {/* RESUME */}
+        <button
+          style={{
+            background: agent === "resume" ? "#2563eb" : "#e5e7eb",
+            color: agent === "resume" ? "white" : "black",
+          }}
+          onClick={() => setAgent("resume")}
+        >
+          Resume
+        </button>
       </div>
 
       {/* CHAT WINDOW */}
@@ -205,7 +237,9 @@ function App() {
           value={message}
           onChange={e => setMessage(e.target.value)}
           onKeyDown={e => e.key === "Enter" && sendMessage()}
-          placeholder="Type your message..."
+          placeholder={agent==="resume"?"Ask to review your resume..."
+            :agent==="study"?"ask your study question..."
+            :"Type your message..."}
           style={{
             flex: 1,
             padding: 10,
@@ -221,6 +255,7 @@ function App() {
       {/* FILE + RESUME */}
       <div style={{ marginTop: 15, display: "flex", gap: 10 }}>
         <input
+          ref={fileInputRef}
           type="file"
           onChange={e => setFile(e.target.files[0])}
         />
