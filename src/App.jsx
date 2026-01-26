@@ -1,8 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import Login from "./pages/Login.jsx"
+import Register from "./pages/Register.jsx";
 
 function App() {
+
+  const token = localStorage.getItem("token");
+  const [showLogin, setShowLogin] = useState(true);
+
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -12,6 +18,18 @@ function App() {
 
   const bottomRef = useRef(null);
   const fileInputRef = useRef(null);
+
+
+  if (!token) {
+    return (
+      <div style={{ padding: 40 }}>
+        {showLogin ? <Login /> : <Register />}
+        <button onClick={() => setShowLogin(!showLogin)}>
+          {showLogin ? "Go to Register" : "Go to Login"}
+        </button>
+      </div>
+    );
+  }
 
 
   useEffect(() => {
@@ -118,6 +136,17 @@ function App() {
   return (
     <div style={{ padding: 20, maxWidth: 700, margin: "auto" }}>
       <h2 style={{ textAlign: "center" }}>AI Chat Agent</h2>
+
+      <div style={{ padding: 20, textAlign: "right" }}>
+        <button
+          onClick={() => {
+            localStorage.removeItem("token");
+            window.location.reload();
+          }}
+        >
+          Logout
+        </button>
+      </div>
 
       <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
         {/* CHAT */}
@@ -237,9 +266,9 @@ function App() {
           value={message}
           onChange={e => setMessage(e.target.value)}
           onKeyDown={e => e.key === "Enter" && sendMessage()}
-          placeholder={agent==="resume"?"Ask to review your resume..."
-            :agent==="study"?"ask your study question..."
-            :"Type your message..."}
+          placeholder={agent === "resume" ? "Ask to review your resume..."
+            : agent === "study" ? "ask your study question..."
+              : "Type your message..."}
           style={{
             flex: 1,
             padding: 10,
