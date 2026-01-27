@@ -1,35 +1,99 @@
 import { useState } from "react";
 
-function Login() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+const API_URL = import.meta.env.VITE_API_URL;
 
-    const login = async () => {
-        const res = await fetch("http://localhost:5000/api/auth/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password })
-        });
+export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-        const data = await res.json();
+  const handleLogin = async () => {
+    if (!email || !password) {
+      setError("All fields are required");
+      return;
+    }
 
-        if (!res.ok) {
-            alert(data.message);
-            return;
-        }
+    setLoading(true);
+    setError("");
 
-        localStorage.setItem("token", data.token);
-        window.location.reload();
-    };
+    try {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
 
-    return (
-        <div>
-            <h2>Login</h2>
-            <input placeholder="Email" onChange={e => setEmail(e.target.value)} />
-            <input placeholder="Password" type="password" onChange={e => setPassword(e.target.value)} />
-            <button onClick={login}>Login</button>
-        </div>
-    );
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || "Login failed");
+        setLoading(false);
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      window.location.reload();
+    } catch {
+      setError("Server error");
+    }
+
+    setLoading(false);
+  };
+
+  return (
+    <div style={box}>
+      <h2>Login</h2>
+
+      <input
+        style={input}
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={e => setEmail(e.target.value)}
+      />
+
+      <input
+        style={input}
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={e => setPassword(e.target.value)}
+      />
+
+      {error && <p style={errorStyle}>{error}</p>}
+
+      <button style={btn} onClick={handleLogin} disabled={loading}>
+        {loading ? "Logging in..." : "Login"}
+      </button>
+    </div>
+  );
 }
 
-export default Login;
+const box = {
+  maxWidth: 320,
+  margin: "auto",
+  display: "flex",
+  flexDirection: "column",
+  gap: 12
+};
+
+const input = {
+  padding: 10,
+  borderRadius: 6,
+  border: "1px solid #ccc"
+};
+
+const btn = {
+  padding: 10,
+  borderRadius: 6,
+  background: "#2563eb",
+  color: "white",
+  border: "none",
+  cursor: "pointer"
+};
+
+const errorStyle = {
+  color: "red",
+  fontSize: 14
+};
