@@ -49,7 +49,9 @@ function App() {
       `${import.meta.env.VITE_API_URL}/chat`,
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json" ,
+          "Authorization":`Bearer ${token}`
+        },
         body: JSON.stringify({ messages: updatedMessages, agent: agent }),
       }
     );
