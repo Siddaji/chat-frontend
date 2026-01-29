@@ -8,38 +8,40 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  
   const handleLogin = async () => {
-    if (!email || !password) {
-      setError("All fields are required");
+  if (!email || !password) {
+    setError("All fields are required");
+    return;
+  }
+
+  setLoading(true);
+  setError("");
+
+  try {
+    const res = await fetch(`${API_URL}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+
+    const text = await res.text();       
+    const data = text ? JSON.parse(text) : {};
+
+    if (!res.ok) {
+      setError(data.message || "Login failed");
+      setLoading(false);
       return;
     }
 
-    setLoading(true);
-    setError("");
-
-    try {
-      const res = await fetch(`${API_URL}/api/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.message || "Login failed");
-        setLoading(false);
-        return;
-      }
-
-      localStorage.setItem("token", data.token);
-      window.location.reload();
-    } catch {
-      setError("Server error");
-    }
-
+    localStorage.setItem("token", data.token);
+    window.location.href = "/chat";
+  } catch (err) {
+    console.error(err);
+    setError("Server error");
     setLoading(false);
-  };
+  }
+};
 
   return (
     <div style={box}>
