@@ -37,7 +37,6 @@ export default function Login() {
     localStorage.setItem("token", data.token);
     window.location.href = "/chat";
   } catch (err) {
-    console.error(err);
     setError("Server error");
     setLoading(false);
   }
